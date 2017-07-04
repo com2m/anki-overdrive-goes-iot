@@ -3,18 +3,47 @@
 ######################################################################
 
 QT += bluetooth
+QT += core
+QT -= gui
 
+CONFIG += c++11
 CONFIG += debug
 
 TEMPLATE = app
-TARGET = ankioverdrive
+TARGET = build/ankioverdrive
 INCLUDEPATH += .
 
+LIBS += -lmosquittopp
+
+LIBS += -L/usr/lib
+
+INCLUDEPATH += /usr/include
+
 # Input
-SOURCES += main.cpp \
-    bluetoothcontroller.cpp \
-    racecar.cpp
+SOURCES += src/main.cpp \
+    src/bluetoothcontroller.cpp \
+    src/ankimessage.cpp \
+    src/trackpiece.cpp \
+    src/track.cpp \
+    src/mqttclient.cpp \
+    src/json.cpp \
+    src/drivemode.cpp \
+    src/joystick.cc \
+    src/gamepadmanager.cpp \
+    src/ankicar.cpp \
+    src/racecar.cpp \
+    src/tragediyimplementation.cpp
 
 HEADERS += \
-    bluetoothcontroller.h \
-    racecar.h
+    src/headers/bluetoothcontroller.h \
+    src/headers/ankimessage.h \
+    src/headers/trackpiece.h \
+    src/headers/track.h \
+    src/headers/mqttclient.h \
+    src/headers/json.h \
+    src/headers/drivemode.h \
+    src/headers/joystick.hh \
+    src/headers/gamepadmanager.h \
+    src/headers/ankicar.h \
+    src/headers/racecar.h \
+    src/headers/tragediyimplementation.h
