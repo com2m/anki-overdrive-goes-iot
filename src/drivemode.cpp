@@ -57,14 +57,18 @@ DriveMode::DriveMode(QObject *parent) : QObject(parent) {
     }
 
     if (enableMqtt) {
+        qDebug() << ">> CHECKING MQTT BROKER AVAILABILITY...";
         while (QProcess::execute(QString("ping -c 1 %0").arg(brokerIp)) != 0)  {
             usleep(10000000);
         }
+        qDebug() << ">> MQTT BROKER IS AVAILABLE.";
         mqttClient = new MqttClient(brokerIp, brokerPort, brokerTimeout, brokerUser, brokerPassword, this);
         mqttClient->subscribe(0, c2sChannel.toStdString().c_str());
         mqttClient->subscribe(0, s2cChannel.toStdString().c_str());
 
+        qDebug() << ">> ATTEMPTING TO CONNECT TO MQTT BROKER...";
         connect(mqttClient, SIGNAL(onMessage(MqttMessage)), this, SLOT(onMqttMessage(MqttMessage)));
+        qDebug() << ">> SUCCESSFULLY CONNECTED TO MQTT BROKER.";
     }
 
     batteryUpdateTimer = new QTimer(this);
@@ -329,7 +333,6 @@ void DriveMode::positionUpdate(AnkiMessage ankiMessage) {
 
     entry.setX(entry.getX() + xMin * (-1));
     entry.setY(entry.getY() + yMin * (-1));
-
 
     publishMessage(Json::getPositionJson(racecar->getAddress(), entry));
 }

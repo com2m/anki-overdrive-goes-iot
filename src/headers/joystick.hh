@@ -94,6 +94,7 @@ private:
   bool axisInit = false;
   bool buttonBInit = false;
   bool buttonXInit = false;
+  bool reInit = false;
 
   Racecar* racecar = 0;
 

@@ -20,7 +20,7 @@ The sample application, Anki Overdrive goes IoT, establishes connection to up to
 ### Qt 5.7 (or newer)
 As already mentioned, the project uses the Qt framework for various purposes. Since there are, at least until today, no appropriate versions of Qt available in the official Raspbian repositories (including Stretch), you have to download, compile and install Qt yourself.
 The Qt framework (including the Bluetooth Modules!) is quite large and takes a few hours to compile and install. There are various instructions available on the internet; we recommend [this](http://www.tal.org/building_qt_5_for_raspberrypi_jessie) one.
-
+As of March 2018 this step should not be necessary anymore, since the Raspbian repositories already contain a precompiled version of Qt 5.7 per default.
 
 ### BlueZ 5.42 (or newer)
 BlueZ is the implementation of the bluetooth protocol stack for Linux. By default Raspbian uses an "unstable" version, which leads to a connection abort after about two minutes. Therefore it is recommended to install at least version 5.42 of BlueZ - which is currently not included in in the official repositories.
@@ -38,6 +38,7 @@ mkdir -p bluez && cd bluez
 wget http://www.kernel.org/pub/linux/bluetooth/bluez-5.42.tar.xz
 tar xf bluez-5.42.tar.xz
 cd bluez-5.42
+  
   
 # Patching source code
 wget https://gist.github.com/pelwell/c8230c48ea24698527cd/archive/3b07a1eb296862da889609a84f8e10b299b7442d.zip

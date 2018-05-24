@@ -23,7 +23,9 @@
 #include <string>
 #include <sstream>
 #include "unistd.h"
-
+#include <QDebug>
+#include <QFileInfo>
+#include <errno.h>
 
 Joystick::Joystick() {
   openPath("/dev/input/js0");
@@ -41,12 +43,29 @@ Joystick::Joystick(const std::string& devicePath) {
 }
 
 void Joystick::openPath(const std::string& devicePath) {
+  errno = 0;
   _fd = open(devicePath.c_str(), O_RDONLY | O_NONBLOCK);
 }
 
 bool Joystick::sample(JoystickEvent* event) {
-  int bytes = read(_fd, event, sizeof(*event));
+  std::stringstream sstm;
+  sstm << "/dev/input/js" << joystickNumber;
+  QString deviceName = QString::fromStdString(sstm.str());
+  QFileInfo check_device(deviceName);
+  
+  if (!reInit && !check_device.exists()) {
+    close(_fd);
+    reInit = true;
+  } else {
+      if (reInit && check_device.exists()) {
+          reInit = false;
+    _fd = 0;
+          openPath(deviceName.toStdString());
+      }
+  }
 
+  int bytes = read(_fd, event, sizeof(*event));
+  
   if (bytes == -1)
     return false;
 
