@@ -147,6 +147,16 @@ uint16_t AnkiMessage::getVelocity() {
         velocity = message[14] << 8;
         velocity = velocity | message[13];
         break;
+    case NOT_DEFINED:
+    case CHANGE_LANE:
+    case CANCEL_LANE_CHANGE:
+    case SET_OFFSET_FROM_ROADCENTER:
+    case UTURN:
+    case BATTERY_REQUEST:
+    case BATTERY_RESPONSE:
+    case VEHICLE_INFO:
+    case SDK_MODE:
+        break;
     }
 
     return velocity;
@@ -163,7 +173,7 @@ float AnkiMessage::getOffset() {
 
         memcpy(&offset, offset_array, sizeof offset);
 
-        return offset;
+        return offset;  // offset from road center [mm], signed
     }
     else
         return 0.0f;
@@ -230,70 +240,82 @@ uint8_t AnkiMessage::getLocationId() {
     if (getType() == POSITION_UPDATE) {
         return message[2];
     }
+    return 0;
 }
 
 uint8_t AnkiMessage::getPieceId() {
     if (getType() == POSITION_UPDATE) {
         return message[3];
     }
+    return 0;
 }
 
 uint8_t AnkiMessage::getRoadPieceIdx() {
     if (getType() == TRANSITION_UPDATE) {
         return message[2];
     }
+    return 0;
 }
 
 uint8_t AnkiMessage::getRoadPieceIdxPrev() {
     if (getType() == TRANSITION_UPDATE) {
         return message[3];
     }
+    return 0;
 }
 
 uint8_t AnkiMessage::getDrivingDirection() {
     if (getType() == TRANSITION_UPDATE) {
         return message[8];
     }
+    return 0;
 }
 
 uint8_t AnkiMessage::getLeftWheelDisplacement() {
     if (getType() == TRANSITION_UPDATE) {
-        return message[17];
+        return message[16];
     }
+    return 0;
 }
 
 uint8_t AnkiMessage::getRightWheelDisplacement() {
     if (getType() == TRANSITION_UPDATE) {
-        return message[18];
+        return message[17];
     }
+    return 0;
 }
 
 int AnkiMessage::getNumBits() {
     if (getType() == POSITION_UPDATE) {
         return message[10] & 0x0F;
     }
+    return 0;
 }
 
 bool AnkiMessage::reverseParsing() {
     if (getType() == POSITION_UPDATE) {
         return (bool)(message[10] & 0x40);
     }
+    return 0;
 }
 
 bool AnkiMessage::reverseDriving() {
     if (getType() == POSITION_UPDATE) {
         return (bool)(message[10] & 0x20);
     }
+    return 0;
 }
 
 bool AnkiMessage::onTrack() {
     if (getType() == VEHICLE_INFO) {
         return (bool)(message[2]);
     }
+    return 0;
 }
 
 bool AnkiMessage::charging() {
     if (getType() == VEHICLE_INFO) {
         return (bool)(message[3]);
     }
+    return 0;
 }

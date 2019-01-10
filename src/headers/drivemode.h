@@ -11,15 +11,20 @@
 #include "bluetoothcontroller.h"
 #include "racecar.h"
 #include "gamepadmanager.h"
+#include "ConsoleReader.h"
 #include "mqttclient.h"
 #include <QTimer>
 #include "track.h"
+#include "rgbled.h"
+
 
 class DriveMode : public QObject {
     Q_OBJECT
 private:
     // Configuration:
     const bool enableMqtt = false;
+    const bool enableKeyboard = true;
+    const bool enableRGBLed = true;
 
     const QString brokerIp = "127.0.0.1";
     const int brokerPort = 1883;
@@ -31,7 +36,7 @@ private:
     // Channel used for car control
     const QString s2cChannel = "control";
 
-    const int numberOfRacecars = 4;
+    const int numberOfRacecars = 2;
 
     uint16_t maxVelocity = 800;
     uint16_t nitroVelocity = 1200;
@@ -49,6 +54,7 @@ private:
     QList<Racecar*> racecarList;
 
     GamepadManager* gamepadManager;
+    ConsoleReader* consoleReader;
 
     QThread* gamepadThread;
 
@@ -58,7 +64,12 @@ private:
 
     Racecar* getRacecarByAddress(QBluetoothAddress address);
     void velocityChanged(Racecar* racecar);
-
+    bool usingTurboMode = false;
+    double usingSpeed = 0.0;
+    bool gamePaused = false;
+    RGBLed* statusLED;
+    const double maximumBatteryLevel = 4200;
+    
     float xMin = 0.0f;
     float yMin = 0.0f;
 
@@ -78,6 +89,8 @@ public slots:
 
     void changeLane(Racecar* racecar, double value);
     void acceleratorChanged(Racecar* racecar, double value);
+    void acceleratorUp(Racecar* racecar);
+    void acceleratorDown(Racecar *racecar);
 
     void ready();
     void requestBatteryUpdate();
@@ -90,6 +103,8 @@ public slots:
     void transition();
     void stoppedAtStart();
     void velocityUpdate();
+    
+    void OnConsoleKeyPressed(char); 
 
     void onMqttMessage(MqttMessage mqttMessage);
 };
