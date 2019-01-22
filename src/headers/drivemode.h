@@ -16,6 +16,7 @@
 #include <QTimer>
 #include "track.h"
 #include "rgbled.h"
+#include <QMediaPlayer>
 
 
 class DriveMode : public QObject {
@@ -25,6 +26,7 @@ private:
     const bool enableMqtt = false;
     const bool enableKeyboard = true;
     const bool enableRGBLed = true;
+    const bool enableBackgroundMusic = true;
 
     const QString brokerIp = "127.0.0.1";
     const int brokerPort = 1883;
@@ -48,6 +50,7 @@ private:
     QList<int> lanes;
 
     QTimer* batteryUpdateTimer;
+    QTimer* periodTimer;
 
     BluetoothController* bluetoothController;
 
@@ -60,6 +63,8 @@ private:
 
     MqttClient *mqttClient;
 
+    QMediaPlayer *player;
+    
     void publishMessage(QByteArray message);
 
     Racecar* getRacecarByAddress(QBluetoothAddress address);
@@ -103,7 +108,8 @@ public slots:
     void transition();
     void stoppedAtStart();
     void velocityUpdate();
-    
+    bool setLightsForPeriod(Racecar* racecar, AnkiMessage::lightFeature lightsOn, int ms, AnkiMessage::lightFeature lightsOff);  
+    void lightsPeriodUpdate(Racecar* racecar, AnkiMessage::lightFeature lightsOff); 
     void OnConsoleKeyPressed(char); 
 
     void onMqttMessage(MqttMessage mqttMessage);

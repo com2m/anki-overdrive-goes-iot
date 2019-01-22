@@ -40,6 +40,27 @@ void AnkiCar::init(const QBluetoothDeviceInfo& device) {
     else if (this->address.toString() == "E6:45:5A:32:6E:4A") name = BrightRed + Black + "Skull" + White + Black;
     else name = this->address.toString();                                     
 
+    // QString  QBluetoothDeviceInfo::name()  returns the name assigned to the device - but is nothing really readable, at least not speific for a car
+    // qDebug().noquote().nospace() << "[" + this->getAddress().toString() + "]" << " name is: " << device.name();
+
+    /*
+     * QVector<quint16> QBluetoothDeviceInfo::manufacturerIds() const
+     * Returns all manufacturer ids attached to this device information.
+     * This function was introduced in Qt 5.12.
+     * 
+     * pi@raspberrypi:~ $ qmake --version
+     *      QMake version 3.0
+     *      Using Qt version 5.7.1 in /usr/lib/arm-linux-gnueabihf
+     * 
+     * see http://www.tal.org/tutorials/building-qt-512-raspberry-pi
+     * 
+    const QVector<quint16> manufacturerIds = device.manufacturerIds();  // Returns all manufacturer ids attached to this device information.
+    for (int i = 0; i < manufacturerIds.size(); ++i) {
+        qDebug().noquote().nospace() << "[" + this->getAddress().toString() + "]" << " manufacturerData is: " << device.manufacturerData(manufacturerIds.at(i)).toString();        
+    }                                                                                              // Returns the data associated with the given manufacturerId.
+
+    */
+
     lowEnergyController = new QLowEnergyController(device, this);
     lowEnergyController->setRemoteAddressType(QLowEnergyController::RandomAddress);
 
@@ -144,6 +165,12 @@ void AnkiCar::setVelocity(uint16_t velocity, uint16_t acceleration) {
 
     sendMessage(sdkMessage);
 }
+
+void AnkiCar::setLights(uint8_t lightValue) {
+     AnkiMessage sdkMessage(AnkiMessage::SET_LIGHTS, lightValue);
+     this->lightValue = lightValue;
+     sendMessage(sdkMessage);
+}       
 
 uint16_t AnkiCar::getVelocity() {
     return this->velocity;

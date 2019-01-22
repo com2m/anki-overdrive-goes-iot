@@ -11,6 +11,11 @@ AnkiMessage::AnkiMessage(Type type) {
     configureMessage(type);
 }
 
+AnkiMessage::AnkiMessage(Type type, uint8_t lightValue) {
+    configureMessage(type);
+    setLights(lightValue);
+}
+
 AnkiMessage::AnkiMessage(Type type, uint16_t velocity, uint16_t acceleration) {
     configureMessage(type);
 
@@ -96,6 +101,15 @@ void AnkiMessage::configureMessage(Type type, int length) {
         message[3] = 0x00; // Turn immediately. Alternative: 0x01 for turning at next intersection
         break;
 
+    case SET_LIGHTS:
+        message = QByteArray(3, 0x00);
+        message[0] = SET_LIGHTS_LENGTH;
+        message[1] = SET_LIGHTS; // Message type 0x1d
+        break;
+
+    case LIGHTS_PATTERN:
+        break;
+
     default:
         message = QByteArray(length, 0x00);
         break;
@@ -115,6 +129,15 @@ AnkiMessage::Type AnkiMessage::getType() {
         return (Type)((int)message[1]);
     else
         return NOT_DEFINED;
+}
+
+bool AnkiMessage::setLights(uint8_t lightValue) {
+  if (getType() == SET_LIGHTS) {
+      message[2] = lightValue ;
+      return true;
+  }
+  else
+      return false;
 }
 
 bool AnkiMessage::setVelocity(uint16_t velocity, uint16_t acceleration) {
@@ -155,6 +178,8 @@ uint16_t AnkiMessage::getVelocity() {
     case BATTERY_REQUEST:
     case BATTERY_RESPONSE:
     case VEHICLE_INFO:
+    case SET_LIGHTS:
+    case LIGHTS_PATTERN:
     case SDK_MODE:
         break;
     }

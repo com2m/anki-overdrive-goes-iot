@@ -23,6 +23,7 @@ public:
     void init(const QBluetoothDeviceInfo& address);
 
     void setVelocity(uint16_t velocity = 0, uint16_t acceleration = 1000);
+    void setLights(uint8_t lightValue = 0x88);
     uint16_t getVelocity();
     int getLane();
 
@@ -81,6 +82,7 @@ private:
     void processIncomingMessage(AnkiMessage message);
 
     uint16_t velocity = 0;
+    uint8_t lightValue = 0;
     uint16_t batteryLevel = 0;
     float offset = 0.0f;
 

@@ -8,7 +8,7 @@
 #include <QDebug>
 
 GamepadManager::GamepadManager(int count, QObject* parent) : QThread(parent) {
-
+    qDebug().noquote().nospace() << "Creating GamepadManager for " << count << " cars.";
 }
 
 QList<Joystick*> GamepadManager::getGamepads() {

@@ -62,6 +62,7 @@ void ConsoleReader::run()
    *    	P     pause
    *    	0-5   speed 0%, 20%, ... 100%
    *    	T     turbo speed
+   *      M/m   U-turn
    *  
    *  detecting codes (xterm)
    *   	Ins	^[[2~  

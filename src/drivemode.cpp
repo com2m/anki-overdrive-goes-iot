@@ -18,6 +18,8 @@
 
 #include "unistd.h"
 #include <QProcess>
+#include <QSoundEffect>
+#include <QFileInfo>
 
 
 DriveMode::DriveMode(QObject *parent) : QObject(parent) {
@@ -27,6 +29,12 @@ DriveMode::DriveMode(QObject *parent) : QObject(parent) {
     if (enableRGBLed) {
         statusLED = new RGBLed(3, 12, 13);
         statusLED->setColor(Qt::green);
+    }
+    if (enableBackgroundMusic) {
+        player = new QMediaPlayer;
+        player->setMedia(QUrl::fromLocalFile("../media/AnkiOveride.mp3"));
+        player->setVolume(60);
+        // qDebug().noquote().nospace() << "player: " << player->currentMedia().ToString();
     }
 
     lanes << 2 << 7 << 12 << 17;
@@ -100,6 +108,7 @@ void DriveMode::quit() {
         }
     }
     if (enableRGBLed) delete statusLED;
+    if (enableBackgroundMusic) player->stop();
     if (consoleReader != 0) {
         consoleReader->quit();
         consoleReader->terminate();
@@ -117,6 +126,7 @@ void DriveMode::publishMessage(QByteArray message) {
 void DriveMode::disconnected() {
     Racecar* racecar = static_cast<Racecar*>(QObject::sender());
     if (enableRGBLed) statusLED->setColor(Qt::green);
+    if (enableBackgroundMusic) player->stop();
     publishMessage(Json::getAliveJson(racecar->getAddress(), false, uuid));
 }
 
@@ -169,7 +179,11 @@ void DriveMode::ready() {
 
     sendMessage("[" + racecar->getName() + "]>> READY.");
     qDebug().noquote().nospace() << "[" + racecar->getName() + "]" << ">> READY.";
+    
+    // LED is blue
     if (enableRGBLed) statusLED->setColor(Qt::blue);
+    // start music 
+    if (enableBackgroundMusic) player->play();
 
     publishMessage(Json::getAliveJson(racecar->getAddress(), true, uuid));
 }
@@ -397,11 +411,31 @@ void DriveMode::positionUpdate(AnkiMessage ankiMessage) {
 }
 
 
+bool DriveMode::setLightsForPeriod(Racecar* racecar, AnkiMessage::lightFeature lightsOn, int ms, AnkiMessage::lightFeature lightsOff) { 
+
+    // qDebug().noquote().nospace() << "setLightsForPeriod, On= 0x"  << hex << lightsOn << ", off= 0x" << hex << lightsOff << " for ms=" << ms;
+
+    periodTimer = new QTimer(this);
+    connect(periodTimer, &QTimer::timeout, [=] { lightsPeriodUpdate(racecar, lightsOff); });
+    periodTimer->setSingleShot(true);
+    periodTimer->start(ms);
+    racecar->setLights(lightsOn);
+    return true;
+}
+
+void DriveMode::lightsPeriodUpdate(Racecar* racecar, AnkiMessage::lightFeature lightsOff ) {
+    racecar->setLights(lightsOff);
+}
+
+
 void DriveMode::OnConsoleKeyPressed(char c){
 
     int car = 0;
     int lane = 0;
     static int leftCar = 0;
+    static int counter = 0;
+    uint8_t lightValue = 0;
+    QSoundEffect effect;
     // qDebug().noquote().nospace() << "processing key "  << c;
     
     switch (c) {
@@ -417,7 +451,7 @@ void DriveMode::OnConsoleKeyPressed(char c){
             qDebug().noquote().nospace() << "[" + racecar->getName() + "]>> Speed set to " << usingSpeed;
         }
         break;
-    case 'G':   // F5    drive to start
+    case 'G':   // F5    drive to start - does not work, cars too slow, mostly never reach start
         foreach (Racecar* racecar, racecarList) {
             QString carAddress = racecar->getAddress().toString();
             if (carAddress != "00:00:00:00:00:00" ) {
@@ -439,8 +473,6 @@ void DriveMode::OnConsoleKeyPressed(char c){
                 if (racecar->ignoreInputs() || racecar->isCharging()) {
                     continue;
                 }
-                racecar->setReverseDriving(false);
-                racecar->ignoreInputs(true);
                 if (racecarList.indexOf(racecar) == leftCar) {
                     emit driveLeft(racecar, true); // drive furthest left
                     qDebug().noquote().nospace() << "[" + racecar->getName() + "]>> [F8] Drive to left";
@@ -473,6 +505,7 @@ void DriveMode::OnConsoleKeyPressed(char c){
             QString carAddress = racecar->getAddress().toString();
             if (carAddress != "00:00:00:00:00:00" && racecarList.indexOf(racecar) == car) {
                 emit acceleratorDown(racecar); 
+                setLightsForPeriod(racecar, AnkiMessage::lightFeature::BRAKE_LITE_ON, 800, AnkiMessage::lightFeature::BRAKE_LITE_OFF);  
             }
         }
         car = 0;
@@ -484,12 +517,9 @@ void DriveMode::OnConsoleKeyPressed(char c){
         foreach (Racecar* racecar, racecarList) {
             QString carAddress = racecar->getAddress().toString();
             if (carAddress != "00:00:00:00:00:00" && racecarList.indexOf(racecar) == car) {
-                // emit driveLeft(racecar, true); // drive furthest left
-                // emit changeLane(racecar, -0.5);
-                // qDebug().noquote().nospace() << "[" + racecar->getName() + "]>> driving on lane " << racecar->getLane() << " (steering left, -1)";
-                // racecar->changeLane(racecar->getLane() + 1);   // getLane() was aĺwasy -1, i.e. never set
                 racecar->setOffsetFromRoadCenter(0.0f);  
-                racecar->changeLane(-5.0f, 50, 500);   // max speed = 250, max acceleration = 2500)
+                racecar->changeLane(-23.0f, 250, 1000);   // Offset (68, 23, -23, 68 seem to be lane values 1-4), 
+                                                          // max speed = 250 , max acceleration = 2500)
             }
         }
         car = 0;
@@ -501,16 +531,48 @@ void DriveMode::OnConsoleKeyPressed(char c){
         foreach (Racecar* racecar, racecarList) {
             QString carAddress = racecar->getAddress().toString();
             if (carAddress != "00:00:00:00:00:00" && racecarList.indexOf(racecar) == car) {
-                // emit driveRight(racecar, true);  // drive farthest right 
-                // emit changeLane(racecar, 0.5);
-                // qDebug().noquote().nospace() << "[" + racecar->getName() + "]>> driving on lane " << racecar->getLane() << " (steering right, +1)";
-                // racecar->changeLane(racecar->getLane() - 1);
                 racecar->setOffsetFromRoadCenter(0.0f);  
-                racecar->changeLane(+9.06f);
+                racecar->changeLane(+23.0f);   // +9.06f ?
             }
         }
         car = 0;
         break;
+    case 'e':     // fire
+    case 'E':     // 
+        car++;
+    case 'I':
+        effect.setSource(QUrl::fromLocalFile(QFileInfo("../media/Duff.wav").absoluteFilePath())); 
+        // qDebug().noquote().nospace() << ">> effect.setSource " << QFileInfo("../media/Duff.wav").absoluteFilePath();
+        effect.setLoopCount(1);
+        effect.setVolume(1.0f);
+        effect.play();
+        foreach (Racecar* racecar, racecarList) {
+            QString carAddress = racecar->getAddress().toString();
+            if (carAddress != "00:00:00:00:00:00" && racecarList.indexOf(racecar) == car) {
+                setLightsForPeriod(racecar, AnkiMessage::lightFeature::HEAD_LITE_FLASH, 500, AnkiMessage::lightFeature::HEAD_LITE_OFF);  
+            }
+        }
+        break;
+        
+    case 'l':     // testing lights
+        car++;
+    case 'L':
+        foreach (Racecar* racecar, racecarList) {
+            QString carAddress = racecar->getAddress().toString();
+            if (carAddress != "00:00:00:00:00:00" && racecarList.indexOf(racecar) == car) {
+                if (counter % 6 == 0)      lightValue = AnkiMessage::lightFeature::BRAKE_LITE_ON;
+                else if (counter % 6 == 1) lightValue = AnkiMessage::lightFeature::BRAKE_LITE_OFF;
+                else if (counter % 6 == 2) lightValue = AnkiMessage::lightFeature::BRAKE_LITE_FLASH;
+                else if (counter % 6 == 3) lightValue = AnkiMessage::lightFeature::BRAKE_LITE_OFF;
+                else if (counter % 6 == 4) lightValue = AnkiMessage::lightFeature::HEAD_LITE_FLASH;
+                else if (counter % 6 == 5) lightValue = AnkiMessage::lightFeature::HEAD_LITE_OFF;
+                qDebug().noquote().nospace() << "[" + racecar->getName() + "]>> set lights using value 0x" << hex << lightValue;
+                racecar->setLights(lightValue);
+                counter++;
+            }
+        }
+      car = 0;
+      break;
     case 't': 
     case 'T': 
         usingTurboMode = !usingTurboMode;
@@ -552,6 +614,8 @@ void DriveMode::OnConsoleKeyPressed(char c){
         foreach (Racecar* racecar, racecarList) {
             QString carName = racecar->getName();
             requestBatteryUpdate();
+            racecar->reconnect();
+            racecar->ignoreInputs(false);
             if (racecar->getAddress().toString() != "00:00:00:00:00:00") {
                 qDebug().noquote().nospace() << "[" + carName + "]>> ignoreInputs = " << racecar->ignoreInputs();
                 qDebug().noquote().nospace() << "[" + carName + "]>> isCharging = " << racecar->isCharging();
@@ -560,12 +624,17 @@ void DriveMode::OnConsoleKeyPressed(char c){
             }
         }
         break;
-    case 'M':
-        /*
-        void doUturn(Racecar* racecar, bool value);
-        void changeLane(Racecar* racecar, double value);
-        void trackScanCompleted(Track track);
-        */
+    case 'M':     // U-turn
+        car++;
+    case 'm':
+        foreach (Racecar* racecar, racecarList) {
+            QString carAddress = racecar->getAddress().toString();
+            if (carAddress != "00:00:00:00:00:00" && racecarList.indexOf(racecar) == car) {
+                doUturn(racecar, true);
+            }
+        }
+        car = 0;
+        break;
     case 'Q':
         qDebug().noquote().nospace() << "[QUIT drive mode]";
         this->quit();
