@@ -89,7 +89,7 @@ private:
     bool scanMode = false;
     bool initialized = false;
 
-    Track track;
+    Track track = Track();
 
     void sendMessage(AnkiMessage message);
 
@@ -140,5 +140,6 @@ public slots:
     void characteristicChanged(const QLowEnergyCharacteristic& characteristic, const QByteArray& value);
     void descriptorWritten(const QLowEnergyDescriptor& descriptor, const QByteArray& newValue);
 };
+
 
 #endif // ANKICAR_H

@@ -106,6 +106,14 @@ bool Joystick::buttonBInitialized() {
     return buttonBInit;
 }
 
+void Joystick::initializeButtonY() {
+    buttonYInit = true;
+}
+
+bool Joystick::buttonYInitialized() {
+    return buttonYInit;
+}
+
 void Joystick::initializeButtonX() {
     buttonXInit = true;
 }

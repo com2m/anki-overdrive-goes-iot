@@ -34,6 +34,7 @@ signals:
     void doUturn(Racecar* racecar, bool value);
     void driveLeft(Racecar* racecar, bool value);
     void driveRight(Racecar* racecar, bool value);
+    void scanTrack();
 
     void changeLane(Racecar* racecar, double value);
     void acceleratorChanged(Racecar* racecar, double value);

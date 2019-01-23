@@ -252,7 +252,7 @@ uint16_t AnkiMessage::getBattery() {
 }
 
 QString AnkiMessage::toString() {
-    QString output;
+    QString output = getType() + ":";
 
     for (int i = 0; i < message.length(); i++) {
         output = output.append(QString("0x%1").arg(message.at(i), 2, 16, QLatin1Char('0')) + " ");
@@ -342,5 +342,42 @@ bool AnkiMessage::charging() {
     if (getType() == VEHICLE_INFO) {
         return (bool)(message[3]);
     }
-    return 0;
+    return false;
+}
+
+QString AnkiMessage::getReadableMessage(){
+	switch (getType()) {
+		case NOT_DEFINED:
+			return "NOT_DEFINED:";
+        // Driving commands
+		case SET_VELOCITY:
+			return "SET_VELOCITY:";
+		case CHANGE_LANE:
+			return "CHANGE_LANE:";
+		case CANCEL_LANE_CHANGE:
+			return "CANCLE_LANE_CHANGE:";
+		case SET_OFFSET_FROM_ROADCENTER:
+				return "SET_OFFSET_FROM_ROADCENTER:";
+		case UTURN:
+			return  "UTURN:";
+        // Battery level
+        case BATTERY_REQUEST:
+        	return "BATERY_REQUEST:";
+        case BATTERY_RESPONSE:
+        	return "BATTERY RESPONSE:";
+        // Vehicle position updates
+        case POSITION_UPDATE:
+        	return "POSITION_UPDATE:";
+        case TRANSITION_UPDATE:
+        	return "TRANSITON_UPDATE:" + toString();
+        case VEHICLE_INFO:
+        	return "VEHICLE_INFO:";
+        // SDK-Mode
+        case SDK_MODE:
+        	return "SDK_MODE";
+        	break;
+		default:
+			return "Unknown Message";
+			break;
+    };
 }

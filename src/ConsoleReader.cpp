@@ -63,6 +63,7 @@ void ConsoleReader::run()
    *    	0-5   speed 0%, 20%, ... 100%
    *    	T     turbo speed
    *      M/m   U-turn
+   *      Home(Pos 1)  Scan Track  [h]
    *  
    *  detecting codes (xterm)
    *   	Ins	^[[2~  
@@ -112,7 +113,7 @@ void ConsoleReader::run()
                   if (verbose) qDebug("%c", key);
                   if (key == '~') {
                       if (verbose) qDebug().noquote().nospace() << "<" << "Numpad Home/Pos1" << ">"; 
-                      key = '\0';
+                      key = 'h';
                   }
                   else if (key == '5') {
                       key = getch();    // ^[[15~ = F5
@@ -191,6 +192,8 @@ void ConsoleReader::run()
               case 'Q':
               case 'c':
               case 'C':
+              case 'h':
+              case 'H':
                 key = '\0';
                 break;
           }

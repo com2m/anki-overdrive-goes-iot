@@ -268,6 +268,7 @@ void AnkiCar::controllerError(const QLowEnergyController::Error &error) {
     }
 }
 
+
 void AnkiCar::deviceConnected() {
     emit sendMessage("[" + getAddress().toString() + "]>> CONNECTED.");
     qDebug().noquote().nospace() << "[" << getAddress().toString() << "]" << ">> CONNECTED.";
@@ -305,6 +306,7 @@ void AnkiCar::deviceDisconnected() {
 
 void AnkiCar::scanTrack() {
     track.clear();
+    qDebug("Called0");
     scanMode = true;
     setVelocity(300);
 }
@@ -325,8 +327,15 @@ QString AnkiCar::getName() {
 
 void AnkiCar::processIncomingMessage(AnkiMessage message) {
 
+	if (message.getType() == AnkiMessage::POSITION_UPDATE){
+//		qDebug()  << message.getPieceId();
+	}
+//	qDebug() << message.getReadableMessage();
+
+
     if (scanMode && (message.getType() == AnkiMessage::POSITION_UPDATE || message.getType() == AnkiMessage::TRANSITION_UPDATE)) {
         if (message.getType() == AnkiMessage::POSITION_UPDATE) {            
+			track.printTrack();
             if (track.isComplete(message.getPieceId())) {
                 stop();
                 scanMode = false;
@@ -334,26 +343,51 @@ void AnkiCar::processIncomingMessage(AnkiMessage message) {
                 emit trackScanCompleted(track);
             }
             else {
-                track.append(message.getPieceId());
-
-                if (message.reverseParsing()) {
-                    track.setLastDirection(TrackPiece::DIRECTION_RIGHT);
+                if (track.getTrackPieceString( message.getPieceId() ) !=  "C"){
+                	qDebug() << ("Trackpiece:" + track.getTrackPieceString( message.getPieceId())) << message.getPieceId();
+                }
+                else if (message.reverseParsing()) {
+                	qDebug() << "Trackpiece: R " << message.getPieceId()   ;
                 }
                 else {
-                    track.setLastDirection(TrackPiece::DIRECTION_LEFT);
+                	qDebug() << "Trackpiece: L " << message.getPieceId()  ;
                 }
+
+                if (message.reverseParsing()) {
+                    track.append(message.getPieceId(), TrackPiece::DIRECTION_RIGHT);
+                }
+                else {
+                    track.append(message.getPieceId(), TrackPiece::DIRECTION_LEFT);
+                }
+
+//                if (message.reverseParsing()) {
+//                    track.setLastDirection(TrackPiece::DIRECTION_RIGHT);
+//                }
+//                else {
+//                    track.setLastDirection(TrackPiece::DIRECTION_LEFT);
+//                }
             }
         }
-// Alternative solution based on wheel displacement
-
-//        else if (message.getType() == AnkiMessage::TRANSITION_UPDATE) {
-//            if (message.getLeftWheelDisplacement() < message.getRightWheelDisplacement()) {
-//                track.setLastDirection(TrackPiece::DIRECTION_LEFT);
+        else if (message.getType() == AnkiMessage::TRANSITION_UPDATE) {
+         //Alternative solution based on wheel displacement
+//            if (message.getLeftWheelDisplacement() +4  < message.getRightWheelDisplacement()) {
+//            	qDebug() << "T_Left";
+//            }
+//            else if (message.getLeftWheelDisplacement() > message.getRightWheelDisplacement() + 4){
+//            	qDebug() << "T_Right";
 //            }
 //            else {
+//            	qDebug() << "T_Straight";
+//            }
+//
+//            if (message.getLeftWheelDisplacement() +4 < message.getRightWheelDisplacement()) {
+//                track.setLastDirection(TrackPiece::DIRECTION_LEFT);
+//            }
+//            else if (message.getLeftWheelDisplacement() > message.getRightWheelDisplacement() + 4){
 //                track.setLastDirection(TrackPiece::DIRECTION_RIGHT);
 //            }
-//        }
+		}
+//        track.printTrack();
     }
 
     if (message.getType() == AnkiMessage::BATTERY_RESPONSE) {

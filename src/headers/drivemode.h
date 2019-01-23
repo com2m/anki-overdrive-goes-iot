@@ -40,8 +40,8 @@ private:
 
     const int numberOfRacecars = 2;
 
-    uint16_t maxVelocity = 800;
-    uint16_t nitroVelocity = 1200;
+    uint16_t maxVelocity = 600;
+    uint16_t nitroVelocity = 800;
     int acceleratorTolerance = 100;
 
 
@@ -113,6 +113,8 @@ public slots:
     void OnConsoleKeyPressed(char); 
 
     void onMqttMessage(MqttMessage mqttMessage);
+
+    void scanTrack();
 };
 
 #endif // DRIVEMODE_H

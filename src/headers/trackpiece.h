@@ -15,7 +15,12 @@ public:
         SEGMENT_NOT_DEFINED = 0x00,
 
         SEGMENT_STRAIGHT = 0x01,
+
+
         SEGMENT_CURVE = 0x02,
+        SEGMENT_CURVE_A = 0x11,
+        SEGMENT_CURVE_B = 0x12,
+        SEGMENT_CURVE_C = 0x14,
 
         SEGMENT_START = 0x21,
         SEGMENT_FINISH = 0x22,

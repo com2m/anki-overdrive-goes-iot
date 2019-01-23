@@ -94,6 +94,7 @@ private:
   bool axisInit = false;
   bool buttonBInit = false;
   bool buttonXInit = false;
+  bool buttonYInit = false;
   bool reInit = false;
 
   Racecar* racecar = 0;
@@ -138,6 +139,8 @@ public:
   bool buttonBInitialized();
   void initializeButtonX();
   bool buttonXInitialized();
+  bool buttonYInitialized();
+  void initializeButtonY();
 
   int getJoyStickNumber();
 };

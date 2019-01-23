@@ -121,6 +121,8 @@ public:
     uint8_t getLeftWheelDisplacement();
     uint8_t getRightWheelDisplacement();
 
+    QString getReadableMessage();
+
     int getNumBits();
     bool reverseDriving();
     bool reverseParsing();
