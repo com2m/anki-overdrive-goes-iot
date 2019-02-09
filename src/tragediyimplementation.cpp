@@ -31,8 +31,9 @@ QPair<QPair<float, float>, QPair<float, float>> TragediyImplementation::generate
 
     foreach (TrackPiece trackPiece, track) {
         bool rightCurve = (trackPiece.getDirection() == TrackPiece::DIRECTION_RIGHT)?true:false;
-
-        QString newLine = QString("0 %1 %2 1000 %3").arg(track.length()).arg(trackPiece.getPieceId()).arg(rightCurve?1:0);
+        
+        // second parameter is always 7 (not track.length()), according to the modularRoadPieceDefinitionFiles 0_7_*.txt
+        QString newLine = QString("0 %1 %2 1000 %3").arg(7).arg(trackPiece.getPieceId()).arg(rightCurve?1:0);
         trackScheme.append(newLine + "\n");
     }
 

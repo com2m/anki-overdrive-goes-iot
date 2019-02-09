@@ -12,11 +12,15 @@
 #include "racecar.h"
 #include "gamepadmanager.h"
 #include "ConsoleReader.h"
+#include "EventReader.h"
 #include "mqttclient.h"
 #include <QTimer>
 #include "track.h"
 #include "rgbled.h"
 #include <QMediaPlayer>
+#include <QMediaPlaylist>
+#include <QSoundEffect>
+
 
 
 class DriveMode : public QObject {
@@ -40,8 +44,8 @@ private:
 
     const int numberOfRacecars = 2;
 
-    uint16_t maxVelocity = 600;
-    uint16_t nitroVelocity = 800;
+    uint16_t maxVelocity = 800;    // slowly: 600
+    uint16_t nitroVelocity = 1200; // slowly: 800
     int acceleratorTolerance = 100;
 
 
@@ -58,16 +62,22 @@ private:
 
     GamepadManager* gamepadManager;
     ConsoleReader* consoleReader;
+    EventReader* eventReader;
+    const QString eventDevice = "/dev/input/event0";
 
     QThread* gamepadThread;
 
     MqttClient *mqttClient;
 
     QMediaPlayer *player;
+    QMediaPlaylist *playlist;
+    QSoundEffect *fireSoundEffect1 = 0;
+    QSoundEffect *fireSoundEffect2 = 0;
     
     void publishMessage(QByteArray message);
 
     Racecar* getRacecarByAddress(QBluetoothAddress address);
+    void signalStatus(Racecar* racecar);
     void velocityChanged(Racecar* racecar);
     bool usingTurboMode = false;
     double usingSpeed = 0.0;

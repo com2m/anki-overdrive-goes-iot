@@ -244,26 +244,26 @@ void AnkiCar::characteristicWritten(const QLowEnergyCharacteristic &characterist
 void AnkiCar::controllerError(const QLowEnergyController::Error &error) {
     switch (error) {
     case QLowEnergyController::NoError:
-        qDebug("No Error");
+        qDebug("AnkiCar::controllerError() >>> No Error");
         break;
     case QLowEnergyController::UnknownError:
-        qDebug("Unknown Error");
+        qDebug("AnkiCar::controllerError() >>> Unknown Error"); 
         initialized = false;
         break;
     case QLowEnergyController::UnknownRemoteDeviceError:
-        qDebug("The remote Bluetooth LE device with the address pass to the constructor of this class cannot be found.");
+        qDebug("AnkiCar::controllerError() >>> The remote Bluetooth LE device with the address pass to the constructor of this class cannot be found.");
         break;
     case QLowEnergyController::NetworkError:
-        qDebug("Read/Write failed");
+        qDebug("AnkiCar::controllerError() >>> Read/Write failed");
         break;
     case QLowEnergyController::InvalidBluetoothAdapterError:
-        qDebug("Bluetooth adaptor not found");
+        qDebug("AnkiCar::controllerError() >>> Bluetooth adaptor not found");
         break;
     case QLowEnergyController::ConnectionError:
-        qDebug("Connection attempt failed");
+        qDebug("AnkiCar::controllerError() >>> Connection attempt failed");
         break;
     case QLowEnergyController::AdvertisingError:
-        qDebug("Advertising failed");
+        qDebug("AnkiCar::controllerError() >>> Advertising failed");
         break;
     }
 }
@@ -306,14 +306,13 @@ void AnkiCar::deviceDisconnected() {
 
 void AnkiCar::scanTrack() {
     track.clear();
-    qDebug("Called0");
     scanMode = true;
-    setVelocity(300);
+    setVelocity(450);  // 300 is slow
 }
 
 void AnkiCar::cancelLaneChange() {
     AnkiMessage sdkMessage(AnkiMessage::CANCEL_LANE_CHANGE);
-
+    changingLane = false;
     sendMessage(sdkMessage);
 }
 
@@ -446,7 +445,7 @@ void AnkiCar::processIncomingMessage(AnkiMessage message) {
         if (changingLane) {
 
             currentLane = TragediyImplementation::getAnkiLocationTableEntry(message).getLane();
-            if (currentLane < 1) currentLane = this->getLane();
+            // if (currentLane < 1) currentLane = this->getLane();  // added this line - maybe wrong
             int reverseDriving = message.reverseDriving() ? (-1) : (1);
 
             if (currentLane < destinationLane) {
@@ -525,7 +524,7 @@ bool AnkiCar::isOnTrack() {
 }
 
 void AnkiCar::driveToStart(int lane) {
-    setVelocity(700, (uint16_t)12500);
+    setVelocity(500, (uint16_t)12500);  // min 300, typ 500, max 700
     changingLane = true;
     stopAtStart = true;
     this->destinationLane = lane;

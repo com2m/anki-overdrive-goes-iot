@@ -5,6 +5,7 @@
 QT += bluetooth
 QT += core
 QT += gui
+QT += multimedia
 
 CONFIG += c++11
 CONFIG += debug
@@ -34,6 +35,7 @@ SOURCES += src/main.cpp \
     src/joystick.cc \
     src/gamepadmanager.cpp \
     src/ConsoleReader.cpp \
+    src/EventReader.cpp \
     src/ankicar.cpp \
     src/racecar.cpp \
     src/tragediyimplementation.cpp
@@ -50,6 +52,7 @@ HEADERS += \
     src/headers/joystick.hh \
     src/headers/gamepadmanager.h \
     src/headers/ConsoleReader.h \
+    src/headers/EventReader.h \
     src/headers/ankicar.h \
     src/headers/racecar.h \
     src/headers/tragediyimplementation.h

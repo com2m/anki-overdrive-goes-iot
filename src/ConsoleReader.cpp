@@ -51,19 +51,19 @@ void ConsoleReader::run()
   /* Read keyboard and translate into car controls 
    *  Car 1/2           [tranlasted char codes in brackets]
    *    	W/^   faster
-   *     	S/v   slower
+   *    	S/v   slower
    *    	A/<   left
    *    	D/>   right
-   *    	E/Ins fire    [E/I]
+   *    	_/Ins fire    [ /I]
    *    	F1    status  [?]
-   *      F5    drive to start  [G]
-   *      F8    clear road  [C]  
+   *    	F5    drive to start  [G]
+   *    	F8    clear road  [C]  
    *    	F12   quit    [Q]
    *    	P     pause
    *    	0-5   speed 0%, 20%, ... 100%
    *    	T     turbo speed
-   *      M/m   U-turn
-   *      Home(Pos 1)  Scan Track  [h]
+   *    	M/m   U-turn
+   *    	Home(Pos 1)  Scan Track  [h]
    *  
    *  detecting codes (xterm)
    *   	Ins	^[[2~  
@@ -178,6 +178,10 @@ void ConsoleReader::run()
               case 'P':
                   if (testing) qDebug().noquote().nospace() << "<" << "F1" << ">"; 
                   key = '?';
+                  break;
+              case 'H':           // ^[OH = Home
+                  if (testing) qDebug().noquote().nospace() << "<" << "Cursor block Home/Pos1" << ">"; 
+                  key = 'h';
                   break;
               }
           }

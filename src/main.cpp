@@ -4,6 +4,7 @@
  */
 
 #include <QCoreApplication>
+#include <QtCore/QLoggingCategory>
 
 #include "headers/drivemode.h"
 #include <signal.h>
@@ -19,6 +20,8 @@ void disconnectCars(int sig) {
 }
 
 int main(int argc, char *argv[]) {
+
+    // QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
 
     QCoreApplication a(argc, argv);
      
