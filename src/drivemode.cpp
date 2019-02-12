@@ -26,6 +26,13 @@ DriveMode::DriveMode(QObject *parent) : QObject(parent) {
     
     if (enableRGBLed) {
         statusLED = new RGBLed(3, 12, 13);
+        /*
+        statusLED->setColor(Qt::red); sleep(2);
+        statusLED->setColor(Qt::green); sleep(2);
+        statusLED->setColor(Qt::blue); sleep(2);
+        statusLED->setColor(Qt::cyan); sleep(2);
+        statusLED->setColor(Qt::yellow); sleep(5);
+        */ 
         statusLED->setColor(Qt::green);
     }
     if (enableBackgroundMusic) {
@@ -485,6 +492,8 @@ void DriveMode::OnConsoleKeyPressed(char c){
     static int leftCar = 0;
     static int counter = 0;
     uint8_t lightValue = 0;
+    QSoundEffect *shutdown;
+    QUrl _url;
 
    /*
    qDebug().noquote().nospace() << "OnConsoleKeyPressed: '"  << c << "'";
@@ -729,11 +738,19 @@ void DriveMode::OnConsoleKeyPressed(char c){
         }
         car = 0;
         break;
-    case 'Q':
+    case 'Q':   // F12
+        if (enableRGBLed) statusLED->setColor(Qt::red);
+        shutdown = new QSoundEffect;
+        _url = QUrl::fromLocalFile(QFileInfo("media/ByeBye.wav").absoluteFilePath());
+        shutdown->setSource(_url); 
+        shutdown->setLoopCount(1);
+        shutdown->setVolume(1.0f);
+        shutdown->play();
+        sleep(2); 
         qDebug().noquote().nospace() << "[QUIT drive mode]";
         this->quit();
         // this->deleteLater();  // QThread: Destroyed while thread is still running, and does not really terminated.
-        QCoreApplication::quit();
+        QCoreApplication::exit(12);
         break;
     default:
         break;

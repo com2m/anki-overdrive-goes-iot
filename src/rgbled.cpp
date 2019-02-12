@@ -57,7 +57,7 @@ bool RGBLed::setColor(QColor color) {
     
     /* There are 19 predefined QColor objects: white, black, red, darkRed, green, darkGreen, blue, darkBlue, 
      * cyan, darkCyan, magenta, darkMagenta, yellow, darkYellow, gray, darkGray, lightGray, color0 and color1, 
-     * accessible as members of the Qt namespace (ie. Qt::red).
+     * accessible as members of the Qt namespace (ie. Qt::red), see https://doc.qt.io/qt-5/qt.html#GlobalColor-enum 
     */
     // qDebug().noquote().nospace() << "try to setColor() to R=" << color.red() << ", G=" << color.green() << ", B=" << color.blue();
     currentColor = color;

@@ -4,6 +4,7 @@
 #include "headers/EventReader.h"
 #include <stdio.h>
 #include <unistd.h>
+#include <signal.h>
 #include <termios.h>
 #include <QProcess>
 
@@ -43,11 +44,13 @@ void EventReader::run()
    *     F1    status  [?]
    *     F5    drive to start  [G]
    *     F8    clear road  [C]  
-   *     F12   quit    [Q]
+   *     F12   quit and shutdown    [Q]
+   *     Pause quit (= Ctr-C, SIGINT)
    *     P     pause
    *     0-5   speed 0%, 20%, ... 100%
    *     T     turbo speed
-   *     M/m   U-turn
+   *     <Enter>/<Keypad Enter>  
+   *           U-turn  [M/m] 
    *     Home(Pos 1)  Scan Track  [h]
    */
    static bool testing = false;
@@ -113,11 +116,19 @@ void EventReader::run()
                key = ' ';
                // printf("SPACE"); 
                break;         
+            case KEY_ENTER: 
+               if (testing) qDebug().noquote().nospace() << "<" << "<Enter>" << ">"; 
+               key = 'M';
+               break;
+            case KEY_KPENTER: 
+               if (testing) qDebug().noquote().nospace() << "<" << "<Numpad Enter>" << ">"; 
+               key = 'm';
+               break;
             case KEY_KP0: 
                if (testing) qDebug().noquote().nospace() << "<" << "Numpad Ins (0)" << ">"; 
                key = 'I';
                // printf("Ins"); 
-               break;         
+               break;
             case KEY_HOME: 
                if (verbose) qDebug().noquote().nospace() << "<" << "Numpad Home/Pos1" << ">"; 
                key = 'h';
@@ -187,11 +198,17 @@ void EventReader::run()
                key = 'Q';
                // printf("F12"); 
                break;
-            case KEY_G:   // suppress g, i, q, c, h
+            case KEY_PAUSE: 
+               if (testing) qDebug().noquote().nospace() << "<" << "Pause" << ">"; 
+               raise(SIGINT);
+               key = 'Q';
+               break;
+            case KEY_G:   // suppress g, i, q, c, h. m
             case KEY_I: 
             case KEY_Q: 
             case KEY_C: 
             case KEY_H: 
+            case KEY_M: 
                 key = '\0'; break;
             default: 
                 key = '\0'; break;

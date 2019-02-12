@@ -279,7 +279,7 @@ void AnkiCar::deviceDisconnected() {
     emit sendMessage("[" + getAddress().toString() + "]>> DISCONNECTED.");
     qDebug().noquote().nospace() << "[" + getAddress().toString() + "]" << ">> DISCONNECTED.";
 
-    lowEnergyService->disconnect();
+    if (lowEnergyService !=0) lowEnergyService->disconnect();
 
     uuidList.clear();
     velocity = 0;
