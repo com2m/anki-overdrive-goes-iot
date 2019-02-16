@@ -1,3 +1,5 @@
+![](https://img.shields.io/badge/racing%20game-good-brightgreen.svg)
+
 # Anki OVERDRIVE SDK for C++
 This project is a C++ implementation of the official SDK by Anki (written in C) using the Qt framework for various purposes.
 It covers the functionality of the official SDK for the most part and also implements some undocumented functions.
