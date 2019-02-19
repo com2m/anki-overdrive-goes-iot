@@ -16,6 +16,12 @@ AnkiMessage::AnkiMessage(Type type, uint8_t lightValue) {
     setLights(lightValue);
 }
 
+// Create LIGHTS_PATTERN AnkiMessage
+AnkiMessage::AnkiMessage(Type type, uint8_t red, uint8_t green, uint8_t blue) {
+   configureMessage(type);
+   setEngineLight(red, green, blue);
+}
+
 AnkiMessage::AnkiMessage(Type type, uint16_t velocity, uint16_t acceleration) {
     configureMessage(type);
 
@@ -108,6 +114,25 @@ void AnkiMessage::configureMessage(Type type, int length) {
         break;
 
     case LIGHTS_PATTERN:
+        message = QByteArray(18, 0x00);
+        message[0] = LIGHTS_PATTERN_LENGTH;
+        message[1] = LIGHTS_PATTERN; // Message type 0x33
+        message[2] = 0x03;
+        message[3] = 0x00;
+        message[4] = 0x00;
+        message[5] = 0x00; // Red Start?
+        message[6] = 0x00; // Red End?
+        message[7] = 0x00;
+        message[8] = 0x03;
+        message[9] = 0x00;
+        message[10] = 0x00; // Green Start?
+        message[11] = 0x00; // Green End?
+        message[12] = 0x00;
+        message[13] = 0x02; // 2=Solid. Anything else acts like Pulse
+        message[14] = 0x00; 
+        message[15] = 0x00; // Blue start? 
+        message[16] = 0x00; // Blue End?
+        message[17] = 0x00;
         break;
 
     default:
@@ -140,6 +165,22 @@ bool AnkiMessage::setLights(uint8_t lightValue) {
       return false;
 }
 
+bool AnkiMessage::setEngineLight(uint8_t red, uint8_t green, uint8_t blue) {
+  if (getType() == LIGHTS_PATTERN) {
+      bool pulse = false;
+      message[5] = red * 31/255.0; 
+      message[6] = red * 31/255.0; 
+      message[10] = green * 31/255.0; 
+      message[11] = green * 31/255.0; 
+      message[15] = blue * 31/255.0; 
+      message[16] = blue * 31/255.0; 
+      message[13] = (pulse) ? 0x00 : 0x02; 
+      return true;
+  }
+  else
+      return false;
+}
+
 bool AnkiMessage::setVelocity(uint16_t velocity, uint16_t acceleration) {
     if (getType() == SET_VELOCITY) {
         // Arrange velocity and acceleration according to little endian (16-bit)
@@ -147,7 +188,6 @@ bool AnkiMessage::setVelocity(uint16_t velocity, uint16_t acceleration) {
         message[3] = (velocity >> 8);
         message[4] = (acceleration & 0xFF);
         message[5] = (acceleration >> 8);
-
         return true;
     }
     else

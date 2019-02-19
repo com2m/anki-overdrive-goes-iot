@@ -14,12 +14,18 @@ public:
     ~RGBLed();
     bool setColor(QColor color); 
     QColor setColorForPeriod(QColor color, int ms);
+    enum Channel {
+        RED = 1,
+        GREEN = 2,
+        BLUE = 3
+   };
     
 private:
     static bool wiringPiSetupDone;
     int LEDPinRed;
     int LEDPinGreen;
     int LEDPinBlue;
+    void setPWM(QColor color);
     QColor currentColor;
     QTimer* periodTimer;
     

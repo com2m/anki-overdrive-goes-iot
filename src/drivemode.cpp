@@ -26,33 +26,32 @@ DriveMode::DriveMode(QObject *parent) : QObject(parent) {
     
     if (enableRGBLed) {
         statusLED = new RGBLed(3, 12, 13);
-        /*
-        statusLED->setColor(Qt::red); sleep(2);
-        statusLED->setColor(Qt::green); sleep(2);
-        statusLED->setColor(Qt::blue); sleep(2);
-        statusLED->setColor(Qt::cyan); sleep(2);
-        statusLED->setColor(Qt::yellow); sleep(5);
-        */ 
-        statusLED->setColor(Qt::green);
+        statusLED->setColor(Qt::red); 
     }
     if (enableBackgroundMusic) {
         
-        playlist = new QMediaPlaylist();
-        QUrl _url(QUrl::fromLocalFile(QFileInfo("media/AnkiOveride.mp3").absoluteFilePath()));
-        playlist->addMedia(_url);
-        playlist->setPlaybackMode(QMediaPlaylist::Loop);
-        player = new QMediaPlayer;
-        player->setPlaylist(playlist);
-        player->setVolume(40);
-        // qDebug().noquote().nospace() << "player plays: " << player->currentMedia().canonicalUrl().toString() << " from url=" << _url <<  ", error: " << player->error();
-
         QSoundEffect *startup = new QSoundEffect;
-        _url = QUrl::fromLocalFile(QFileInfo("media/Startup.wav").absoluteFilePath());
+        QUrl _url(QUrl::fromLocalFile(QFileInfo("media/Startup.wav").absoluteFilePath()));
         startup->setSource(_url); 
         startup->setLoopCount(1);
         startup->setVolume(1.0f);
         startup->play();
 
+        playlist = new QMediaPlaylist();
+        _url = QUrl::fromLocalFile(QFileInfo("media/AnkiOveride.mp3").absoluteFilePath());
+        playlist->addMedia(_url);
+        playlist->setPlaybackMode(QMediaPlaylist::Loop);
+        player = new QMediaPlayer;
+        player->setPlaylist(playlist);
+        player->setVolume(60);
+        // qDebug().noquote().nospace() << "player plays: " << player->currentMedia().canonicalUrl().toString() << " from url=" << _url <<  ", error: " << player->error();
+
+        sleep(5);  // allow some time for the mp3 to load ...
+        if (enableRGBLed) statusLED->setColor(QColor("#ffa500")); // orange, see SVG colors reference  https://doc.qt.io/qt-5/qml-color.html#svg-color-reference
+        sleep(5);
+        if (enableRGBLed) statusLED->setColor(Qt::green); 
+        sleep(5);
+        
         fireSoundEffect1 = new QSoundEffect;
         _url = QUrl::fromLocalFile(QFileInfo("media/Duff1.wav").absoluteFilePath());
         fireSoundEffect1->setSource(_url); 
@@ -65,6 +64,7 @@ DriveMode::DriveMode(QObject *parent) : QObject(parent) {
         fireSoundEffect2->setLoopCount(1);
         fireSoundEffect2->setVolume(1.0f);
     }
+    if (enableRGBLed) statusLED->setColor(Qt::green); 
 
     lanes << 2 << 7 << 12 << 17;
 
@@ -225,9 +225,14 @@ void DriveMode::ready() {
     }
 
     racecar->ignoreInputs(false);
+    QColor color(Qt::white);
+    if (racecar->getName().contains("Ground Shock")) color = Qt::blue;
+    if (racecar->getName().contains("Skull")) color = Qt::red;
+    racecar->setEngineLight(color.red(), color.green(), color.blue());
 
     sendMessage("[" + racecar->getName() + "]>> READY.");
     qDebug().noquote().nospace() << "[" + racecar->getName() + "]" << ">> READY.";
+    qDebug().noquote().nospace() << "[" + racecar->getName() + "]" << ">> setEngineLight = " << color.name();
     
     // LED is blue
     if (enableRGBLed) statusLED->setColor(Qt::blue);

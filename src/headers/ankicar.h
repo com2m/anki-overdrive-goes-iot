@@ -24,6 +24,7 @@ public:
 
     void setVelocity(uint16_t velocity = 0, uint16_t acceleration = 1000);
     void setLights(uint8_t lightValue = 0x88);
+    void setEngineLight(uint8_t red, uint8_t green, uint8_t blue);
     uint16_t getVelocity();
     int getLane();
 

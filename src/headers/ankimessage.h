@@ -81,6 +81,9 @@ public:
     // Create SET_LIGHTS AnkiMessage
     AnkiMessage(Type type, uint8_t lightValue);
 
+    // Create LIGHTS_PATTERN AnkiMessage
+    AnkiMessage(Type type, uint8_t red, uint8_t green, uint8_t blue);
+
     // Create SET_VELOCITY AnkiMessage
     AnkiMessage(Type type, uint16_t velocity, uint16_t acceleration = 1000);
 
@@ -103,6 +106,9 @@ public:
     
     // Set lights if message type equals SET_LIGHTS
     bool setLights(uint8_t lightValue);
+
+    // Set lights if message type equals LIGHTS_PATTERN 
+    bool setEngineLight(uint8_t red, uint8_t green, uint8_t blue);
 
     // Get offset if message type equals POSITION_UPDATE
     float getOffset();

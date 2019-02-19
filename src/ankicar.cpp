@@ -172,6 +172,12 @@ void AnkiCar::setLights(uint8_t lightValue) {
      sendMessage(sdkMessage);
 }       
 
+void AnkiCar::setEngineLight(uint8_t red, uint8_t green, uint8_t blue) {   
+     qDebug().noquote().nospace() << "AnkiCar::setEngineLight(" << red << ", " << green << ", " << blue << ")";
+     AnkiMessage sdkMessage(AnkiMessage::LIGHTS_PATTERN, red, green, blue);
+     sendMessage(sdkMessage);
+}
+
 uint16_t AnkiCar::getVelocity() {
     return this->velocity;
 }
