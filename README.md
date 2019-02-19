@@ -18,7 +18,7 @@ These instructions will get you a copy of the project up and running on your Ras
 ### Prerequisites
 
 #### Project sources
-I used the directory ~/Projects/anki-overdrive-goes-iot to build and run the project.
+I used the directory `~/Projects/anki-overdrive-goes-iot` to build and run the project.
 ```bash
 md ~/Projects/anki-overdrive-goes-iot
 cd ~/Projects/anki-overdrive-goes-iot
@@ -26,9 +26,7 @@ git clone git@github.com/ThomasHeinrichSchmidt/anki-overdrive-goes-iot.git
 ```
 
 #### Qt 5.7 (or newer)
-The project uses the Qt framework for various purposes. It is available in the official Raspbian Stretch repositories (installed with NOOBS_v3_0_0.zip from
-([NOOBS_v3_0_0.zip](https://www.raspberrypi.org/downloads/noobs/))
-Installation
+The project uses the Qt framework for various purposes. It is available in the official Raspbian Stretch repositories (installed from ([NOOBS_v3_0_0.zip](https://www.raspberrypi.org/downloads/noobs/))
 ```bash
 pi@raspberrypi:~ $ sudo apt-get install qt5-default  qt5-qmake  qtconnectivity5-dev
 ```
@@ -58,14 +56,14 @@ jstest /dev/input/js0
 ```
 
 #### MQTT
-To be able to user the Mosquitto library for C++ you have to install the following packages:
+To be able to use the [Mosquitto](https://mosquitto.org/) library for C++ you have to install the following packages:
 ```bash
 pi@raspberrypi:~ $ sudo apt-get install libmosquittopp1 libmosquittopp-dev
 
 ```
 
 #### TRAGEDIY
-The tool tragediy needs to be present in `~/Projects/anki-overdrive-goes-iot/build` for all functions of ankioverdrive to work properly. [Tragediy](https://github.com/NoveroResearch/tragediy) is available from Github.
+The Anki Track Generator tool needs to be present in `~/Projects/anki-overdrive-goes-iot/build` for all functions of ankioverdrive to work properly. [Tragediy](https://github.com/NoveroResearch/tragediy) is available from Github.
 ```bash
 sudo apt-get install cmake
 sudo apt-get install libboost-dev libboost-filesystem-dev libboost-program-options-dev
@@ -93,13 +91,13 @@ To be able to see some game status you may connect an RGB LED to the Raspi's GPI
 #### Background music
 The game plays background music and some appropriate sounds if you press the fire buttons on the keyboard.
 The music files are located in `anki-overdrive-goes-iot/build/media`:
-*      `AnkiOveride.mp3` - background music
-*      `Duff1.wav, Duff2.wav` - fire sounds for cars 1, 2
-*      `Startup.wav, ByeBye.wav` - what the name says
+*      *AnkiOveride.mp3* - background music
+*      *Startup.wav, ByeBye.wav* - what the name says
+*      *Duff1.wav, Duff2.wav* - fire sounds for cars 1, 2
 
 (You may switch off the music in  `src/headers/drivemode.h` using `enableBackgroundMusic = true;` or just by not connecting any speakers).
 
-To make the music work for Qt you need to install
+To make the music work for a Qt application you need to install
 ```bash
 pi@raspberrypi:~ $ sudo apt-get install pulseaudio pulseaudio-module-zeroconf
 pi@raspberrypi:~ $ pulseaudio -vvvv
@@ -121,7 +119,7 @@ by adding   `QMAKE_CFLAGS_ISYSTEM = -I`   to `~/Projects/anki-overdrive-goes-iot
 
 #### AutoStart
 To play the game stand-alone (just the Raspi, an RGB LED, the keyboard, and speakers) you may prepare for a headless AutoStart. Open a terminal session and edit the file `~/.profile`: `nano ~/.profile`.
-Add the following line to the end of the file, using flock to avoid starting twice, eg. from a SSH console login.
+Add the following line to the end of the file, using `flock` to avoid starting the game twice, e.g. if using a SSH console to log in.
 `flock -n $HOME/StartAnkiOverdrive.lockfile $HOME/StartAnkiOverdrive.sh`
 The script itself looks like this
 ```bash
@@ -157,9 +155,9 @@ pi@raspberrypi:~ $ chmod +x /home/pi/StartAnkiOverdrive.sh
 
 ## Playing the game
 Generally you may run the game by starting the exectuable using
-`cd build` and `./ankioverdrive`
+`cd ~/Projects/anki-overdrive-goes-iot/build` and `./ankioverdrive`
 
-But the easiest way to play is "headless" without a screen using AutoStart as described above.
+But the easiest way to play is "headless" without a screen using the AutoStart as described above.
 * Build a track, switch on cars, put on track
 * Remove screen, add USB keyboard, RGB LED, and speakers to Raspberry Pi, restart
 * Play game using keyboard or gamepads
@@ -207,6 +205,7 @@ The LED shows different colours depending on the status of the game.
 
 * [Qt 5](https://doc.qt.io/qt-5/index.html) - The Qt framework
 * [Tragediy](https://github.com/NoveroResearch/tragediy) - Tool for constructing Anki tracks
+* [Mosquitto](https://mosquitto.org/) - message broker for the MQTT protocol
 
 ## About
   The [com2m](https://github.com/com2m/anki-overdrive-goes-iot) SDK covers the functionality of the official Anki SDK for the most part and also implements some undocumented functions. Additionally to the SDK the project contains a sample application called "Anki OVERDRIVE goes IoT".
