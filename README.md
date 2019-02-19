@@ -91,9 +91,9 @@ To be able to see some game status you may connect an RGB LED to the Raspi's GPI
 #### Background music
 The game plays background music and some appropriate sounds if you press the fire buttons on the keyboard.
 The music files are located in `anki-overdrive-goes-iot/build/media`:
-*      *AnkiOveride.mp3* - background music
-*      *Startup.wav, ByeBye.wav* - what the name says
-*      *Duff1.wav, Duff2.wav* - fire sounds for cars 1, 2
+*      AnkiOveride.mp3 - background music
+*      Startup.wav, ByeBye.wav - what the name says
+*      Duff1.wav, Duff2.wav - fire sounds for cars 1, 2
 
 (You may switch off the music in  `src/headers/drivemode.h` using `enableBackgroundMusic = true;` or just by not connecting any speakers).
 
