@@ -44,6 +44,7 @@ void EventReader::run()
    *     F1    status  [?]
    *     F5    drive to start  [G]
    *     F8    clear road  [C]  
+   *     F10   quit and restart     [R]
    *     F12   quit and shutdown    [Q]
    *     Pause quit (= Ctr-C, SIGINT)
    *     P     pause
@@ -193,6 +194,11 @@ void EventReader::run()
                key = 't';
                // printf("t"); 
                break;
+            case KEY_F10: 
+               if (testing) qDebug().noquote().nospace() << "<" << "F10" << ">"; 
+               key = 'R';
+               // printf("F10"); 
+               break;
             case KEY_F12: 
                if (testing) qDebug().noquote().nospace() << "<" << "F12" << ">"; 
                key = 'Q';
@@ -203,9 +209,10 @@ void EventReader::run()
                raise(SIGINT);
                key = 'Q';
                break;
-            case KEY_G:   // suppress g, i, q, c, h. m
+            case KEY_G:   // suppress g, i, q, r, c, h. m
             case KEY_I: 
             case KEY_Q: 
+            case KEY_R: 
             case KEY_C: 
             case KEY_H: 
             case KEY_M: 

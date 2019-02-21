@@ -58,7 +58,8 @@ void ConsoleReader::run()
    *    	F1    status  [?]
    *    	F5    drive to start  [G]
    *    	F8    clear road  [C]  
-   *    	F12   quit    [Q]
+   *    	F10   restart  [R]
+   *    	F12   shutdown [Q]
    *    	P     pause
    *    	0-5   speed 0%, 20%, ... 100%
    *    	T     turbo speed
@@ -68,8 +69,8 @@ void ConsoleReader::run()
    *  detecting codes (xterm)
    *   	Ins	^[[2~  
    *  	F1 	^[OP
+   *  	F10	^[[21~
    *  	F12	^[[24~  
-   * 
    * 
    */
     static bool testing = false;
@@ -145,6 +146,17 @@ void ConsoleReader::run()
                       if (testing) qDebug().noquote().nospace() << "<" << "Numpad Ins" << ">"; 
                       key = 'I';
                   }
+                  else if (key == '1') {
+                      key = getch();    // ^[[21~ = F10
+                      if (verbose) qDebug("%c", key);
+                      if (key == '~') {
+                          if (testing) qDebug().noquote().nospace() << "<" << "F10" << ">"; 
+                          key = 'R';
+                      }
+                      else {
+                        key = '\0';
+                      }
+                  }
                   else if (key == '4') {
                       key = getch();    // ^[[24~ = F12
                       if (verbose) qDebug("%c", key);
@@ -187,13 +199,15 @@ void ConsoleReader::run()
           }
       }
       else {
-          switch (key) {  // suppress g, i, q 
+          switch (key) {  // suppress g, i, q, r 
               case 'g':
               case 'G':
               case 'i':
               case 'I':
               case 'q':
               case 'Q':
+              case 'r':
+              case 'R':
               case 'c':
               case 'C':
               case 'h':

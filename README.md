@@ -32,12 +32,12 @@ pi@raspberrypi:~ $ sudo apt-get install qt5-default  qt5-qmake  qtconnectivity5-
 ```
 
 #### BlueZ 5.42 (or newer)
-BlueZ is the implementation of the bluetooth protocol stack for Linux. Raspian Stretch comes with BlueZ 5.43, you may check using
+BlueZ is the Linux implementation of the bluetooth protocol stack. Raspian Stretch already comes with BlueZ 5.43, you may check using
 ```bash
 pi@raspberrypi:~ $ systemctl status bluetooth         # shows "Bluetooth daemon 5.43"
 pi@raspberrypi:~ $ sudo apt-get install pi-bluetooth  # only if Bluetooth needs to be re-installed
 ```
-The Bluetooth stack does not seem to be 100% stable, therefor it is recommended to run the Bluetooth monitor `btmon` parallel to `ankioverdrive` (as shown in `StartAnkiOverdrive.sh` see below)
+The Bluetooth stack does not seem to be 100% stable, therefor I used to run the Bluetooth monitor `btmon` parallel to `ankioverdrive` in the background (as shown in `StartAnkiOverdrive.sh`, see below)
 
 ```bash
 pi@raspberrypi:~ sudo btmon >>btmon.log 2>&1 &
@@ -56,7 +56,7 @@ jstest /dev/input/js0
 ```
 
 #### MQTT
-To be able to use the [Mosquitto](https://mosquitto.org/) library for C++ you have to install the following packages:
+To be able to use the [Mosquitto](https://mosquitto.org/) library for C++ you need to install the following packages:
 ```bash
 pi@raspberrypi:~ $ sudo apt-get install libmosquittopp1 libmosquittopp-dev
 
@@ -86,7 +86,7 @@ In this way the directory name for the tragediy -I parameter (used by `ankioverd
 Instead of using Xbox 360 controllers you can also connect a standard USB keyboard for controlling two cars. This even works when running headless (with no screen attached) by using the Linux `/dev/input/eventX` interface. You may disable this feature in `src/headers/drivemode.h`:  `enableKeyboard = false;`. To change the keyboard input device used go to `src/headers/EventReader.h`: `char *device = "/dev/input/event0";`
 
 #### RGB LED     
-To be able to see some game status you may connect an RGB LED to the Raspi's GPIO connector. I was using a LED with built-in resistors so that I do not need a breadboard but just 4 wires to connect the LED to GPIO22, GPIO10, GPIO9 + GND using the wiringPi pin numbers 3, 12, 13. You may switch off the feature uisng `src/headers/drivemode.h`: `enableRGBLed = false;` but if you don't you will just not see the LED signals if you do not connect one.
+To be able to see some game status you may connect an RGB LED to the Raspi's GPIO connector. I was using a LED with built-in resistors so that I do not need a breadboard but just 4 wires to connect the LED to GPIO22, GPIO10, GPIO9 + GND using the wiringPi pin numbers 3, 12, 13. You may switch off the feature using `src/headers/drivemode.h`: `enableRGBLed = false;` but if you don't you will just not see the LED signals if you do not connect one.
 
 #### Background music
 The game plays background music and some appropriate sounds if you press the fire buttons on the keyboard.
@@ -95,7 +95,7 @@ The music files are located in `anki-overdrive-goes-iot/build/media`:
 * Startup.wav, ByeBye.wav - what the name says
 * Duff1.wav, Duff2.wav - fire sounds for cars 1, 2
 
-(You may switch off the music in  `src/headers/drivemode.h` using `enableBackgroundMusic = true;` or just by not connecting any speakers).
+(You may switch off the music in  `src/headers/drivemode.h` using `enableBackgroundMusic = false;` or just by not connecting any speakers).
 
 To make the music work for a Qt application you need to install
 ```bash
@@ -136,17 +136,22 @@ sudo btmon >>btmon.log 2>&1 &
 date >AnkiOverdrive.log
 ps -ef | grep ankioverdrive >>AnkiOverdrive.log
 ./ankioverdrive >>AnkiOverdrive.log 2>&1
-if [ $? -eq 12 ]
+if [ $? -eq 10 ]
 then
-  date >>StartAnkiOverdrive.log
-  echo "Anki Overdrive finished with shutdown [F12].">>AnkiOverdrive.log
-  sudo shutdown -h now
+   date >>StartAnkiOverdrive.log
+   echo "Anki Overdrive finished with restart [F10].">>AnkiOverdrive.log
+   sudo shutdown -r now
+elif [ $? -eq 12 ]
+then
+   date >>StartAnkiOverdrive.log
+   echo "Anki Overdrive finished with shutdown [F12].">>AnkiOverdrive.log
+   sudo shutdown -h now
 fi
 date >>StartAnkiOverdrive.log
 echo "Anki Overdrive finished.">>AnkiOverdrive.log
 echo killall btmon>>AnkiOverdrive.log
 sudo killall btmon>>AnkiOverdrive.log
-echo "Anki Overdrive finished."; sleep 1
+echo "Anki Overdrive finished."; sleep 1 
 ```
 You need to make the script executable
 ```bash
@@ -192,9 +197,10 @@ Use the following keys for controlling the cars (&uarr; &darr; ... are the curso
 The LED shows different colours depending on the status of the game.
 * Scanning for cars (<font color="LawnGreen">green</font>)
 * Bluetooth is active and cars were detected (<font color="DeepSkyBlue  ">blue</font>)
-* if car is not on track (<font color="yellow">yellow</font> for 1s)
-* if car is charging (<font color="cyan">cyan</font> for 1s)
+* if you want to drive and car is not on track (<font color="yellow">yellow</font> for 1s)
+* if you want to drive and car is charging (<font color="cyan">cyan</font> for 1s)
 * low battery (short blinking <font color="red">red</font> if battery < 50%, increase <font color="red">red</font> period if less battery)
+* flashing <font color="red">red</font> shortly before reboot (F10) or shutdown (F12)
 
 
 ### Bluethooth problems
@@ -243,3 +249,4 @@ The authors of this software are in no way affiliated to Anki. All naming rights
 
 ## Acknowledgments
 * integrated improvements for `DriveMode::scanTrack()` from [Renji3](https://github.com/Renji3/anki-overdrive-goes-iot)
+* integrated additional interfaces e.g. `AnkiMessage::setEngineLight()` created by [gravesjohnr](https://github.com/gravesjohnr/AnkiNodeDrive)

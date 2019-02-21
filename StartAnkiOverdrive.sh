@@ -11,7 +11,12 @@ sudo btmon >>btmon.log 2>&1 &
 date >AnkiOverdrive.log
 ps -ef | grep ankioverdrive >>AnkiOverdrive.log
 ./ankioverdrive >>AnkiOverdrive.log 2>&1
-if [ $? -eq 12 ]
+if [ $? -eq 10 ]
+then
+   date >>StartAnkiOverdrive.log
+   echo "Anki Overdrive finished with restart [F10].">>AnkiOverdrive.log
+   sudo shutdown -r now
+elif [ $? -eq 12 ]
 then
    date >>StartAnkiOverdrive.log
    echo "Anki Overdrive finished with shutdown [F12].">>AnkiOverdrive.log

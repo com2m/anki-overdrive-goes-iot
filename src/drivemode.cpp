@@ -494,6 +494,7 @@ void DriveMode::OnConsoleKeyPressed(char c){
 
     int car = 0;
     int lane = 0;
+    int retcode = 10;
     static int leftCar = 0;
     static int counter = 0;
     uint8_t lightValue = 0;
@@ -744,6 +745,8 @@ void DriveMode::OnConsoleKeyPressed(char c){
         car = 0;
         break;
     case 'Q':   // F12
+        retcode += 2;
+    case 'R':   // F10
         if (enableRGBLed) statusLED->setColor(Qt::red);
         shutdown = new QSoundEffect;
         _url = QUrl::fromLocalFile(QFileInfo("media/ByeBye.wav").absoluteFilePath());
@@ -751,11 +754,16 @@ void DriveMode::OnConsoleKeyPressed(char c){
         shutdown->setLoopCount(1);
         shutdown->setVolume(1.0f);
         shutdown->play();
-        sleep(2); 
-        qDebug().noquote().nospace() << "[QUIT drive mode]";
+        for (int i=0; i < 15; i++) { // 15 * 0.2s = 3s blinking red
+            if (enableRGBLed) statusLED->setColorForPeriod(Qt::black, 100);  // 0.1s = 100ms
+            QThread::msleep(100); // 100 + 100 msecs = 0.2s
+            if (enableRGBLed) statusLED->setColor(Qt::red);
+            QThread::msleep(100); 
+        }
+        qDebug().noquote().nospace() << "[QUIT drive mode] with return code = " << retcode;
         this->quit();
         // this->deleteLater();  // QThread: Destroyed while thread is still running, and does not really terminated.
-        QCoreApplication::exit(12);
+        QCoreApplication::exit(retcode);
         break;
     default:
         break;
