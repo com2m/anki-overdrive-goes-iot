@@ -445,8 +445,8 @@ void DriveMode::trackScanCompleted(Track track) {
 
     foreach (Racecar* racecar, racecarList) {
         publishMessage(Json::getTrackJson(racecar->getAddress(), track, uuid, extremeValues.first.first, extremeValues.first.second, extremeValues.second.first, extremeValues.second.second));
-        racecar->setLights(AnkiMessage::lightFeature::BRAKE_LITE_OFF);
     }
+    racecar->setLights(AnkiMessage::lightFeature::BRAKE_LITE_OFF);
 }
 
 void DriveMode::stoppedAtStart() {

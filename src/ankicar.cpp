@@ -12,6 +12,7 @@
 #include "headers/trackpiece.h"
 #include <QLowEnergyConnectionParameters>
 #include "headers/tragediyimplementation.h"
+#include <QThread>
 
 const QBluetoothUuid AnkiCar::SERVICE_UUID = QBluetoothUuid(QString("BE15BEEF-6186-407E-8381-0BD89C4D8DF4"));
 const QBluetoothUuid AnkiCar::CHR_READ_UUID = QBluetoothUuid(QString("BE15BEE0-6186-407E-8381-0BD89C4D8DF4"));
@@ -278,7 +279,9 @@ void AnkiCar::controllerError(const QLowEnergyController::Error &error) {
 void AnkiCar::deviceConnected() {
     emit sendMessage("[" + getAddress().toString() + "]>> CONNECTED.");
     qDebug().noquote().nospace() << "[" << getAddress().toString() << "]" << ">> CONNECTED.";
+    QThread::msleep(500);  // After you connect put a sleep delay of a few hundred ms and always request a single services and characteristic at a time.
     lowEnergyController->discoverServices();
+    QThread::msleep(500);  
 }
 
 void AnkiCar::deviceDisconnected() {
@@ -505,7 +508,7 @@ void AnkiCar::changeLane(int lane) {
 }
 
 void AnkiCar::sendMessage(AnkiMessage message) {
-    lowEnergyService->writeCharacteristic(lowEnergyService->characteristic(CHR_WRITE_UUID), message.getMessage());
+    if (lowEnergyService !=0) lowEnergyService->writeCharacteristic(lowEnergyService->characteristic(CHR_WRITE_UUID), message.getMessage());
 }
 
 void AnkiCar::stop() {
@@ -543,8 +546,8 @@ bool AnkiCar::isAvailable() {
 
 void AnkiCar::reconnect() {
     if (lowEnergyController != 0) {
-        if (lowEnergyController->state() == QLowEnergyController::UnconnectedState)
-            lowEnergyController->connectToDevice();
+        // if (lowEnergyController->state() == QLowEnergyController::UnconnectedState)
+        lowEnergyController->connectToDevice();
     }
 }
 

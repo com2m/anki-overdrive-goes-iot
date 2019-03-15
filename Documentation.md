@@ -1,6 +1,7 @@
 
 Anki Overdrive C++
 ==================
+*as of 2017 (Raspbian Jessie)*
 
 ####Table of Contents
 

@@ -23,6 +23,7 @@ I used the directory `~/Projects/anki-overdrive-goes-iot` to build and run the p
 md ~/Projects/anki-overdrive-goes-iot
 cd ~/Projects/anki-overdrive-goes-iot
 git clone git@github.com/ThomasHeinrichSchmidt/anki-overdrive-goes-iot.git
+sudo apt-get install qt5-default  qt5-qmake  qtmultimedia5-dev  qtconnectivity5-dev  libmosquittopp-dev
 ```
 
 #### Qt 5.7 (or newer)
@@ -37,11 +38,16 @@ BlueZ is the Linux implementation of the bluetooth protocol stack. Raspian Stret
 pi@raspberrypi:~ $ systemctl status bluetooth         # shows "Bluetooth daemon 5.43"
 pi@raspberrypi:~ $ sudo apt-get install pi-bluetooth  # only if Bluetooth needs to be re-installed
 ```
-The Bluetooth stack does not seem to be 100% stable, therefor I used to run the Bluetooth monitor `btmon` parallel to `ankioverdrive` in the background (as shown in `StartAnkiOverdrive.sh`, see below)
+The Bluetooth stack does not seem to be 100% stable, therefor I used to run the Bluetooth monitor `btmon` parallel to `ankioverdrive` in the background (as shown in `StartAnkiOverdrive.sh`, see below), this seems to improve the behaviour.
 
 ```bash
 pi@raspberrypi:~ sudo btmon >>btmon.log 2>&1 &
 ```
+You may want to try to update to a more current BlueZ version, e.g. to 5.50, see https://scribles.net/updating-bluez-on-raspberry-pi-from-5-43-to-5-50/ - you can check the version using
+```bash
+pi@raspberrypi:~ $ bluetoothctl -v
+```
+
 
 #### Microsoft® Xbox 360™ Wireless Receiver for Windows®
 To install the appropriate driver to use your Xbox 360 controller via the Xbox 360™ Wireless Receiver for Windows® issue
@@ -118,7 +124,7 @@ The error message `/usr/include/c++/6/cstdlib:75:25: fatal error: stdlib.h: file
 by adding   `QMAKE_CFLAGS_ISYSTEM = -I`   to `~/Projects/anki-overdrive-goes-iot/ankioverdrive.pro` according to [this arcticle](https://stackoverflow.com/questions/52532936/usr-include-c-7-cstdlib7515-fatal-error-stdlib-h-no-such-file-or-directo)
 
 #### AutoStart
-To play the game stand-alone (just the Raspi, an RGB LED, the keyboard, and speakers) you may prepare for a headless AutoStart. Open a terminal session and edit the file `~/.profile`: `nano ~/.profile`.
+To play the game stand-alone (just the Raspberry Pi, an RGB LED, the keyboard, and speakers) you may prepare for a headless AutoStart. Open a terminal session and edit the file `~/.profile`: `nano ~/.profile`.
 Add the following line to the end of the file, using `flock` to avoid starting the game twice, e.g. if using a SSH console to log in.
 `flock -n $HOME/StartAnkiOverdrive.lockfile $HOME/StartAnkiOverdrive.sh`
 The script itself looks like this
@@ -151,21 +157,26 @@ date >>StartAnkiOverdrive.log
 echo "Anki Overdrive finished.">>AnkiOverdrive.log
 echo killall btmon>>AnkiOverdrive.log
 sudo killall btmon>>AnkiOverdrive.log
-echo "Anki Overdrive finished."; sleep 1 
+echo "Anki Overdrive finished."; sleep 1
 ```
 You need to make the script executable
 ```bash
 pi@raspberrypi:~ $ chmod +x /home/pi/StartAnkiOverdrive.sh
 ```
+If you wanted to connect via SSH you would need to enable it in the Raspi configuration. When using PuTTY as an SSH client you should be using "ESC[~" as function keys and keypad setting under "Keyboard",
 
 ## Playing the game
-Generally you may run the game by starting the exectuable using
-`cd ~/Projects/anki-overdrive-goes-iot/build` and `./ankioverdrive`
+When using the Raspberry 3,5mm audio jack for speakers, you need to click on the speaker symbol (top right) on the Desktop and choose "Analog" (instead of HDMI).
 
-But the easiest way to play is "headless" without a screen using the AutoStart as described above.
+ Generally you may run the game by starting the executable using
+`cd ~/Projects/anki-overdrive-goes-iot/build` and `./ankioverdrive`.
+But the easiest way to play is "headless" without a screen attached using AutoStart as described above.      
+
 * Build a track, switch on cars, put on track
 * Remove screen, add USB keyboard, RGB LED, and speakers to Raspberry Pi, restart
 * Play game using keyboard or gamepads
+
+Startup takes some (waiting) time to allow for sound services to start in background.
 
 ### Using the Keyboard
 Use the following keys for controlling the cars (&uarr; &darr; ... are the cursor keys)
@@ -205,7 +216,7 @@ The LED shows different colours depending on the status of the game.
 
 ### Bluethooth problems
 * Cars sometimes stop and do no longer respond to the Bluetooth game commands. In this case reboot the Raspi by pressing F10 on the keyboard.
-* If Bluetooth LE fails cars do no longer connect. Sometimes they start blinking red. After this they will no longer be able to connect themselves. If switching off and on again (using the tiny white plastic button under the car) does not help put them on the charger to reset. Remove after some time, switch off, put on charger again until cars no longer blink red.
+* If Bluetooth LE fails cars sometimes do no longer connect, indicated by blinking red. After this they will no longer be able to connect themselves. If switching off and on again (using the tiny white plastic button under the car to the rear) does not help put them on the charger to reset. Remove after some time, check if not blinking red any more, if still blinking, switch off, put on charger again, repeat until cars no longer blink red.
 
 ## Built With
 

@@ -68,7 +68,7 @@ void ConsoleReader::run()
    *  
    *  detecting codes (xterm)
    *   	Ins	^[[2~  
-   *  	F1 	^[OP
+   *  	F1 	^[OP and ^[[11~ (PuTTY using "ESC[~" keyboard)
    *  	F10	^[[21~
    *  	F12	^[[24~  
    * 
@@ -115,6 +115,17 @@ void ConsoleReader::run()
                   if (key == '~') {
                       if (verbose) qDebug().noquote().nospace() << "<" << "Numpad Home/Pos1" << ">"; 
                       key = 'h';
+                  }
+                  else if (key == '1') {
+                      key = getch();    // ^[[11~ = F1
+                      if (verbose) qDebug("%c", key);
+                      if (key == '~') {
+                          if (testing) qDebug().noquote().nospace() << "<" << "F1" << ">"; 
+                          key = '?';
+                      }
+                      else {
+                        key = '\0';
+                      }
                   }
                   else if (key == '5') {
                       key = getch();    // ^[[15~ = F5
