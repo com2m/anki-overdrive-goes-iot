@@ -16,16 +16,20 @@ public:
     Track();
     void clear();
     void append(const uint8_t trackpieceId);
+    void append(const uint8_t trackpieceId, const TrackPiece::Direction direction);
     void setLastDirection(TrackPiece::Direction direction);
     void printTrack();
     bool isComplete(uint8_t trackpieceId);
     QString getTrackString();
+    QString getTrackPieceString(const uint8_t trackpieceId);
+
     QList<TrackPiece> getTrackList();
+    int samePieceCounter = 1;
 
 private:
     bool containsStart = false;
     bool containsFinish = false;
-    QList<TrackPiece> track;
+    QList<TrackPiece> track = QList<TrackPiece>();
 
     bool mightBeComplete = false;
 };

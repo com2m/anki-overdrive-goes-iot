@@ -81,6 +81,7 @@ public:
     static QPair<QPair<float, float>, QPair<float, float>> writeTrackSchemeToFile(QString trackScheme);
     static QPair<QPair<float, float>, QPair<float, float>> generateLocationTable();
     static AnkiLocationTableEntry getAnkiLocationTableEntry(AnkiMessage message);
+    static int ankiLocationTableCount();
 
 private:
 //    static AnkiLocationTableEntry ankiLocationTable[2][8][256][256];

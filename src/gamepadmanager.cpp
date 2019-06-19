@@ -8,7 +8,7 @@
 #include <QDebug>
 
 GamepadManager::GamepadManager(int count, QObject* parent) : QThread(parent) {
-
+    qDebug().noquote().nospace() << "Creating GamepadManager for " << count << " cars.";
 }
 
 QList<Joystick*> GamepadManager::getGamepads() {
@@ -83,6 +83,14 @@ void GamepadManager::run() {
                             }
                             else {
                                 emit doUturn(gamepad->getRacecar(), (event.value)?true:false);
+                            }
+                            break;
+                        case 3: // Button Y
+                            if (!gamepad->buttonYInitialized()) {
+                                gamepad->initializeButtonY();
+                            }
+                            else {
+                                emit scanTrack();
                             }
                             break;
                         case 11: // Button Left

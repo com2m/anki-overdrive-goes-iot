@@ -11,15 +11,26 @@
 #include "bluetoothcontroller.h"
 #include "racecar.h"
 #include "gamepadmanager.h"
+#include "ConsoleReader.h"
+#include "EventReader.h"
 #include "mqttclient.h"
 #include <QTimer>
 #include "track.h"
+#include "rgbled.h"
+#include <QMediaPlayer>
+#include <QMediaPlaylist>
+#include <QSoundEffect>
+
+
 
 class DriveMode : public QObject {
     Q_OBJECT
 private:
     // Configuration:
     const bool enableMqtt = false;
+    const bool enableKeyboard = true;
+    const bool enableRGBLed = true;
+    const bool enableBackgroundMusic = true;
 
     const QString brokerIp = "127.0.0.1";
     const int brokerPort = 1883;
@@ -31,10 +42,10 @@ private:
     // Channel used for car control
     const QString s2cChannel = "control";
 
-    const int numberOfRacecars = 4;
+    const int numberOfRacecars = 2;
 
-    uint16_t maxVelocity = 800;
-    uint16_t nitroVelocity = 1200;
+    uint16_t maxVelocity = 800;    // slowly: 600
+    uint16_t nitroVelocity = 1200; // slowly: 800
     int acceleratorTolerance = 100;
 
 
@@ -43,22 +54,37 @@ private:
     QList<int> lanes;
 
     QTimer* batteryUpdateTimer;
+    QTimer* periodTimer;
 
     BluetoothController* bluetoothController;
 
     QList<Racecar*> racecarList;
 
     GamepadManager* gamepadManager;
+    ConsoleReader* consoleReader;
+    EventReader* eventReader;
+    const QString eventDevice = "/dev/input/event0";
 
     QThread* gamepadThread;
 
     MqttClient *mqttClient;
 
+    QMediaPlayer *player;
+    QMediaPlaylist *playlist;
+    QSoundEffect *fireSoundEffect1 = 0;
+    QSoundEffect *fireSoundEffect2 = 0;
+    
     void publishMessage(QByteArray message);
 
     Racecar* getRacecarByAddress(QBluetoothAddress address);
+    void signalStatus(Racecar* racecar);
     void velocityChanged(Racecar* racecar);
-
+    bool usingTurboMode = false;
+    double usingSpeed = 0.0;
+    bool gamePaused = false;
+    RGBLed* statusLED;
+    const double maximumBatteryLevel = 4200;
+    
     float xMin = 0.0f;
     float yMin = 0.0f;
 
@@ -78,6 +104,8 @@ public slots:
 
     void changeLane(Racecar* racecar, double value);
     void acceleratorChanged(Racecar* racecar, double value);
+    void acceleratorUp(Racecar* racecar);
+    void acceleratorDown(Racecar *racecar);
 
     void ready();
     void requestBatteryUpdate();
@@ -90,8 +118,13 @@ public slots:
     void transition();
     void stoppedAtStart();
     void velocityUpdate();
+    bool setLightsForPeriod(Racecar* racecar, AnkiMessage::lightFeature lightsOn, int ms, AnkiMessage::lightFeature lightsOff);  
+    void lightsPeriodUpdate(Racecar* racecar, AnkiMessage::lightFeature lightsOff); 
+    void OnConsoleKeyPressed(char); 
 
     void onMqttMessage(MqttMessage mqttMessage);
+
+    void scanTrack();
 };
 
 #endif // DRIVEMODE_H

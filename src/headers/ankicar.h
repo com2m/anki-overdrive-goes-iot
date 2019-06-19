@@ -7,6 +7,7 @@
 #define ANKICAR_H
 
 #include <QObject>
+#include <QString>
 #include <QLowEnergyController>
 #include <QLowEnergyService>
 #include "track.h"
@@ -22,7 +23,10 @@ public:
     void init(const QBluetoothDeviceInfo& address);
 
     void setVelocity(uint16_t velocity = 0, uint16_t acceleration = 1000);
+    void setLights(uint8_t lightValue = 0x88);
+    void setEngineLight(uint8_t red, uint8_t green, uint8_t blue);
     uint16_t getVelocity();
+    int getLane();
 
     void requestBatteryLevel();
     uint16_t getBatteryLevel();
@@ -44,6 +48,7 @@ public:
     void cancelLaneChange();
 
     QBluetoothAddress getAddress();
+    QString getName();
 
     TrackPiece::Type getCurrentSegment();
 
@@ -78,17 +83,19 @@ private:
     void processIncomingMessage(AnkiMessage message);
 
     uint16_t velocity = 0;
+    uint8_t lightValue = 0;
     uint16_t batteryLevel = 0;
     float offset = 0.0f;
 
     bool scanMode = false;
     bool initialized = false;
 
-    Track track;
+    Track track = Track();
 
     void sendMessage(AnkiMessage message);
 
     QBluetoothAddress address = QBluetoothAddress();
+    QString name;
 
     TrackPiece::Type currentSegment = TrackPiece::SEGMENT_NOT_DEFINED;
     uint8_t currentPieceId = 0;
@@ -134,5 +141,6 @@ public slots:
     void characteristicChanged(const QLowEnergyCharacteristic& characteristic, const QByteArray& value);
     void descriptorWritten(const QLowEnergyDescriptor& descriptor, const QByteArray& newValue);
 };
+
 
 #endif // ANKICAR_H

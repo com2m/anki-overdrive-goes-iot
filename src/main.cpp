@@ -4,10 +4,12 @@
  */
 
 #include <QCoreApplication>
+#include <QtCore/QLoggingCategory>
 
 #include "headers/drivemode.h"
 #include <signal.h>
 #include <iostream>
+#include "headers/rgbled.h"
 
 DriveMode* driveMode;
 
@@ -18,13 +20,16 @@ void disconnectCars(int sig) {
 }
 
 int main(int argc, char *argv[]) {
-    QCoreApplication a(argc, argv);
 
+    // QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
+
+    QCoreApplication a(argc, argv);
+     
     qRegisterMetaType<MqttMessage>("MqttMessage");
 
     driveMode = new DriveMode();
 
     signal(SIGINT, disconnectCars);
-
+    
     return a.exec();
 }

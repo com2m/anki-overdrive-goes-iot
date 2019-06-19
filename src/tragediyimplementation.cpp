@@ -9,6 +9,7 @@
 #include "headers/tragediyimplementation.h"
 #include <QDebug>
 #include <stdio.h>
+#include <locale.h>
 #include "headers/ankimessage.h"
 #include <QFile>
 #include <unistd.h>
@@ -30,8 +31,9 @@ QPair<QPair<float, float>, QPair<float, float>> TragediyImplementation::generate
 
     foreach (TrackPiece trackPiece, track) {
         bool rightCurve = (trackPiece.getDirection() == TrackPiece::DIRECTION_RIGHT)?true:false;
-
-        QString newLine = QString("0 %1 %2 1000 %3").arg(track.length()).arg(trackPiece.getPieceId()).arg(rightCurve?1:0);
+        
+        // second parameter is always 7 (not track.length()), according to the modularRoadPieceDefinitionFiles 0_7_*.txt
+        QString newLine = QString("0 %1 %2 1000 %3").arg(7).arg(trackPiece.getPieceId()).arg(rightCurve?1:0);
         trackScheme.append(newLine + "\n");
     }
 
@@ -80,7 +82,7 @@ QPair<QPair<float, float>, QPair<float, float>> TragediyImplementation::generate
     QProcess tragediy;
 
     tragediy.setProgram(QDir(QDir::currentPath()).absolutePath() + QDir::separator() + "tragediy");
-    tragediy.setArguments(QStringList() << "-I" << "com.anki.overdrive" << "-p" << "track" << "-j" << "track.txt");
+    tragediy.setArguments(QStringList() << "-I" << "com.anki.drive" << "-p" << "track" << "-j" << "track.txt");
 
     tragediy.start();
 
@@ -103,6 +105,12 @@ QPair<QPair<float, float>, QPair<float, float>> TragediyImplementation::importLo
 
     int reverse, numbits, roadPieceId, locationId, lane, backward, numberOfEntries = 0;
     float x, y, dist;
+    
+    char const *oldLocale = setlocale(LC_ALL, 0);
+    setlocale(LC_ALL, "C");
+    // setlocale(LC_NUMERIC, "C")
+    // int nnn = fscanf(fin, "%d %d %d %d %f %f %d %f %d", &reverse, &numbits, &roadPieceId, &locationId, &x, &y, &lane, &dist, &backward);
+    // qDebug() << ">> found fields: " << nnn; 
 
     while (fscanf(fin, "%d %d %d %d %f %f %d %f %d", &reverse, &numbits, &roadPieceId, &locationId, &x, &y, &lane, &dist, &backward) == 9)
     {
@@ -112,6 +120,7 @@ QPair<QPair<float, float>, QPair<float, float>> TragediyImplementation::importLo
             continue;
         }
 
+        // qDebug() << ">> entry: " << reverse << numbits << roadPieceId << locationId << x << y << lane << dist << backward << "#=" << numberOfEntries;
         xMin = qMin(xMin, x);
         yMin = qMin(yMin, y);
 
@@ -142,11 +151,16 @@ QPair<QPair<float, float>, QPair<float, float>> TragediyImplementation::importLo
     extremeValues.first = minValues;
     extremeValues.second = maxValues;
 
+    setlocale(LC_ALL, oldLocale);
     return extremeValues;
 }
 
 void TragediyImplementation::clearLocationTable() {
     TragediyImplementation::ankiLocationTable.clear();
+}
+
+int TragediyImplementation::ankiLocationTableCount() {
+    return ankiLocationTable.count();
 }
 
 AnkiLocationTableEntry TragediyImplementation::getAnkiLocationTableEntry(AnkiMessage message) {
